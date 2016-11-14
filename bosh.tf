@@ -3,21 +3,21 @@ resource "google_compute_network" "network" {
 }
 
 // Static IP for the BOSH director
-resource "google_compute_address" {
+resource "google_compute_address" "director" {
   name = "${var.env_name}-director-address"
   project = "${var.projectid}"
   region = "${var.region}"
 }
 
 // Subnet for the BOSH director
-resource "google_compute_subnetwork" {
+resource "google_compute_subnetwork" "subnet" {
   name          = "${var.env_name}-${var.region}"
   ip_cidr_range = "10.0.0.0/16"
   network       = "${google_compute_network.network.self_link}"
 }
 
 // Allow open access between internal VMs
-resource "google_compute_firewall" {
+resource "google_compute_firewall" "internal" {
   name    = "${var.env_name}-internal"
   network = "${google_compute_network.network.name}"
 
@@ -38,7 +38,7 @@ resource "google_compute_firewall" {
 
 
 // Allow ssh & mbus access to director
-resource "google_compute_firewall" {
+resource "google_compute_firewall" "bosh-ssh" {
   name    = "${var.env_name}-bosh-ssh"
   network = "${google_compute_network.network.name}"
 
