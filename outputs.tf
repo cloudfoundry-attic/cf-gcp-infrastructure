@@ -46,15 +46,15 @@ output "sql_db_ip" {
   value = "${google_sql_database_instance.master.ip_address.0.ip_address}"
 }
 
-output "cf_gateway" {
+output "gateway" {
   value = "${google_compute_subnetwork.cf-subnet.gateway_address}"
 }
 
-output "cf_cidr" {
+output "cidr" {
   value = "${google_compute_subnetwork.cf-subnet.ip_cidr_range}"
 }
 
-output "cf_subnet" {
+output "subnet" {
   value = "${google_compute_subnetwork.cf-subnet.name}"
 }
 
