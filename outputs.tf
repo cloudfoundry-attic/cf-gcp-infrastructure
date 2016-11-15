@@ -38,6 +38,10 @@ output "network_name" {
   value = "${google_compute_network.cf-network.name}"
 }
 
+output "bosh_ip" {
+  value = "${google_compute_address.bosh.address}"
+}
+
 output "sql_db_ip" {
   value = "${google_sql_database_instance.master.ip_address.0.ip_address}"
 }

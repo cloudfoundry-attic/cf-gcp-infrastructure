@@ -19,6 +19,7 @@ resource "google_compute_firewall" "cf-internal" {
   target_tags = ["${var.env_name}-vms"]
 
   source_tags = [
+    "${var.env_name}-bosh",
     "${var.env_name}-vms",
   ]
 }
