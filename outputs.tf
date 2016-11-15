@@ -86,10 +86,6 @@ output "resources_bucket" {
   value = "${google_storage_bucket.resources.name}"
 }
 
-output "director_blobstore_bucket" {
-  value = "${google_storage_bucket.director.name}"
-}
-
 output "cf_sql_username" {
   value = "${var.cf_sql_db_username}"
 }
