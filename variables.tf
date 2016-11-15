@@ -12,6 +12,7 @@ variable "region" {
 
 variable "zones" {
   type = "list"
+  description = "List of zones, must be of size 3"
 }
 
 variable "service_account_key" {
