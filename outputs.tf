@@ -74,22 +74,6 @@ output "tcp_router_pool" {
   value = "${google_compute_target_pool.cf-tcp.name}"
 }
 
-output "buildpacks_bucket" {
-  value = "${google_storage_bucket.buildpacks.name}"
-}
-
-output "droplets_bucket" {
-  value = "${google_storage_bucket.droplets.name}"
-}
-
-output "packages_bucket" {
-  value = "${google_storage_bucket.packages.name}"
-}
-
-output "resources_bucket" {
-  value = "${google_storage_bucket.resources.name}"
-}
-
 output "cf_sql_username" {
   value = "${var.cf_sql_db_username}"
 }
