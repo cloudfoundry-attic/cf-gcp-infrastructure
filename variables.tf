@@ -8,11 +8,14 @@ variable "env_name" {
 
 variable "region" {
   type = "string"
+  default = "us-central1"
+  description = "Configuring will result in the mismatch of assumptions with cf-deployment"
 }
 
 variable "zones" {
   type = "list"
-  description = "List of zones, must be of size 3"
+  default = ["us-central1-a", "us-central1-b", "us-central1-c"]
+  description = "Configuring will result in the mismatch of assumptions with cf-deployment"
 }
 
 variable "service_account_key" {
