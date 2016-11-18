@@ -39,7 +39,7 @@ resource "google_dns_record_set" "app-ssh-dns" {
 
 resource "google_dns_record_set" "bosh-dns" {
   name       = "bosh.${google_dns_managed_zone.env_dns_zone.dns_name}"
-  depends_on = ["google_compute_address.bosh.address"]
+  depends_on = ["google_compute_address.bosh"]
   type       = "A"
   ttl        = 300
 
