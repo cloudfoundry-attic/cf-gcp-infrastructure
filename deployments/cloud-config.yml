@@ -101,10 +101,10 @@ networks:
     - 10.0.1.190 - 10.0.1.254
     cloud_properties:
       ephemeral_external_ip: false
-      network_name: "((network_name))"
-      subnetwork_name: "((subnet))"
+      network_name: cf-network
+      subnetwork_name: cf-subnet
       tags:
-      - "((vm_tag))"
+      - vms
 
 vm_extensions:
 - name: 5GB_ephemeral_disk
@@ -147,13 +147,13 @@ vm_extensions:
 
 - name: cf-router-network-properties
   cloud_properties:
-    backend_service: "((http_lb_backend_name))"
-    target_pool: "((ws_router_pool))"
+    backend_service: httpslb
+    target_pool: cf-ws
 
 - name: cf-tcp-router-network-properties
   cloud_properties:
-    target_pool: "((tcp_router_pool))"
+    target_pool: cf-tcp
 
 - name: diego-ssh-proxy-network-properties
   cloud_properties:
-    target_pool: "((ssh_router_pool))"
+    target_pool: cf-ssh
