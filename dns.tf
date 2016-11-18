@@ -59,6 +59,17 @@ resource "google_dns_record_set" "app-ssh-dns" {
   rrdatas = ["${google_compute_address.cf-ssh.address}"]
 }
 
+resource "google_dns_record_set" "bosh-dns" {
+  name       = "bosh.${google_dns_managed_zone.env_dns_zone.dns_name}"
+  depends_on = ["google_compute_address.bosh.address"]
+  type       = "A"
+  ttl        = 300
+
+  managed_zone = "${google_dns_managed_zone.env_dns_zone.name}"
+
+  rrdatas = ["${google_compute_address.bosh.address}"]
+}
+
 resource "google_dns_record_set" "tcp-dns" {
   name       = "tcp.${google_dns_managed_zone.env_dns_zone.dns_name}"
   depends_on = ["google_compute_address.cf-tcp"]

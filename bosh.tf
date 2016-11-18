@@ -1,6 +1,6 @@
 // Static IP for the BOSH director
 resource "google_compute_address" "bosh" {
-  name = "bosh-address"
+  name = "bosh"
   project = "${var.project}"
   region = "${var.region}"
 }
