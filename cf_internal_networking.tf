@@ -16,7 +16,10 @@ resource "google_compute_firewall" "cf-internal" {
     protocol = "udp"
   }
 
-  target_tags = ["vms"]
+  target_tags = [
+    "bosh",
+    "vms"
+  ]
 
   source_tags = [
     "bosh",
