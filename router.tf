@@ -9,11 +9,29 @@ resource "google_compute_firewall" "cf-public" {
     ports    = ["80", "443"]
   }
 
-  target_tags = ["httpslb", "cf-ws"]
+  target_tags = ["httpslb"]
 }
 
 resource "google_compute_global_address" "cf" {
   name = "cf"
+}
+
+resource "google_compute_address" "cf-ssh" {
+  name = "cf-ssh"
+}
+
+resource "google_compute_global_forwarding_rule" "cf-http" {
+  name       = "cf-lb-http"
+  ip_address = "${google_compute_global_address.cf.address}"
+  target     = "${google_compute_target_http_proxy.http_lb_proxy.self_link}"
+  port_range = "80"
+}
+
+resource "google_compute_global_forwarding_rule" "cf-https" {
+  name       = "cf-lb-https"
+  ip_address = "${google_compute_global_address.cf.address}"
+  target     = "${google_compute_target_https_proxy.https_lb_proxy.self_link}"
+  port_range = "443"
 }
 
 resource "google_compute_instance_group" "httplb" {
@@ -92,42 +110,7 @@ resource "google_compute_firewall" "cf-health_check" {
   }
 
   source_ranges = ["130.211.0.0/22"]
-  target_tags   = ["httpslb", "cf-ws"]
-}
-
-resource "google_compute_global_forwarding_rule" "cf-http" {
-  name       = "cf-lb-http"
-  ip_address = "${google_compute_global_address.cf.address}"
-  target     = "${google_compute_target_http_proxy.http_lb_proxy.self_link}"
-  port_range = "80"
-}
-
-resource "google_compute_global_forwarding_rule" "cf-https" {
-  name       = "cf-lb-https"
-  ip_address = "${google_compute_global_address.cf.address}"
-  target     = "${google_compute_target_https_proxy.https_lb_proxy.self_link}"
-  port_range = "443"
-}
-
-// TCP LB for websockets
-resource "google_compute_address" "cf-ws" {
-  name = "cf-ws"
-}
-
-resource "google_compute_target_pool" "cf-ws" {
-  name = "cf-ws"
-
-  health_checks = [
-    "${google_compute_http_health_check.cf-public.name}",
-  ]
-}
-
-resource "google_compute_forwarding_rule" "cf-ws" {
-  name        = "cf-ws"
-  target      = "${google_compute_target_pool.cf-ws.self_link}"
-  port_range  = "443"
-  ip_protocol = "TCP"
-  ip_address  = "${google_compute_address.cf-ws.address}"
+  target_tags   = ["httpslb"]
 }
 
 // TCP LB for Diego SSH
@@ -144,12 +127,12 @@ resource "google_compute_firewall" "cf-ssh" {
   target_tags = ["cf-ssh"]
 }
 
-resource "google_compute_address" "cf-ssh" {
+resource "google_compute_target_pool" "cf-ssh" {
   name = "cf-ssh"
 }
 
-resource "google_compute_target_pool" "cf-ssh" {
-  name = "cf-ssh"
+resource "google_compute_target_pool" "cf" {
+  name = "cf"
 }
 
 resource "google_compute_forwarding_rule" "cf-ssh" {
