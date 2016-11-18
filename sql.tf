@@ -1,7 +1,7 @@
 resource "google_sql_database_instance" "master" {
   region           = "${var.region}"
   database_version = "MYSQL_5_6"
-  name             = "${var.env_name}-db"
+  name             = "db"
 
   settings {
     tier = "${var.sql_db_tier}"

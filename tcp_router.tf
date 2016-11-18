@@ -1,6 +1,6 @@
 // Allow access to TCP router
 resource "google_compute_firewall" "cf-tcp" {
-  name       = "${var.env_name}-cf-tcp"
+  name       = "cf-tcp"
   depends_on = ["google_compute_network.cf-network"]
   network    = "${google_compute_network.cf-network.name}"
 
@@ -9,17 +9,17 @@ resource "google_compute_firewall" "cf-tcp" {
     ports    = ["1024-65535"]
   }
 
-  target_tags = ["${var.env_name}-cf-tcp"]
+  target_tags = ["cf-tcp"]
 }
 
 // Static IP address for forwarding rule
 resource "google_compute_address" "cf-tcp" {
-  name = "${var.env_name}-cf-tcp"
+  name = "cf-tcp"
 }
 
 // Health check
 resource "google_compute_http_health_check" "cf-tcp" {
-  name                = "${var.env_name}-cf-tcp"
+  name                = "cf-tcp"
   port                = 80
   request_path        = "/health"
   check_interval_sec  = 30
@@ -30,7 +30,7 @@ resource "google_compute_http_health_check" "cf-tcp" {
 
 // TCP target pool
 resource "google_compute_target_pool" "cf-tcp" {
-  name = "${var.env_name}-cf-tcp"
+  name = "cf-tcp"
 
   health_checks = [
     "${google_compute_http_health_check.cf-tcp.name}",
@@ -39,7 +39,7 @@ resource "google_compute_target_pool" "cf-tcp" {
 
 // TCP forwarding rule
 resource "google_compute_forwarding_rule" "cf-tcp" {
-  name        = "${var.env_name}-cf-tcp"
+  name        = "cf-tcp"
   target      = "${google_compute_target_pool.cf-tcp.self_link}"
   port_range  = "1024-65535"
   ip_protocol = "TCP"
