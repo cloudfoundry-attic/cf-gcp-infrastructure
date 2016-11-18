@@ -10,47 +10,27 @@ azs:
     zone: us-central1-c
 
 vm_types:
-- name: f1-micro
-  cloud_properties:
-    machine_type: f1-micro
-    root_disk_size_gb: 10
-    root_disk_type: pd-standard
-- name: g1-small
+- name: t2.small
   cloud_properties:
     machine_type: g1-small
     root_disk_size_gb: 15
     root_disk_type: pd-standard
-- name: g1-small.100G
-  cloud_properties:
-    machine_type: g1-small
-    root_disk_size_gb: 100
-    root_disk_type: pd-standard
-- name: n1-standard-1
+- name: m3.medium
   cloud_properties:
     machine_type: n1-standard-1
     root_disk_size_gb: 50
     root_disk_type: pd-standard
-- name: n1-standard-2
-  cloud_properties:
-    machine_type: n1-standard-2
-    root_disk_size_gb: 50
-    root_disk_type: pd-standard
-- name: n1-standard-4
-  cloud_properties:
-    machine_type: n1-standard-4
-    root_disk_size_gb: 50
-    root_disk_type: pd-standard
-- name: n1-standard-8
+- name: m3.large
   cloud_properties:
     machine_type: n1-standard-8
     root_disk_size_gb: 50
     root_disk_type: pd-standard
-- name: n1-highmem-4
+- name: r3.xlarge
   cloud_properties:
     machine_type: n1-highmem-4
     root_disk_size_gb: 50
     root_disk_type: pd-standard
-- name: n1-highcpu-4
+- name: c3.large
   cloud_properties:
     machine_type: n1-highcpu-4
     root_disk_size_gb: 15
