@@ -78,7 +78,7 @@ compilation:
   network: private
   az: z1
   reuse_compilation_vms: true
-  vm_type: n1-highcpu-4
+  vm_type: c3.large
   vm_extensions:
   - 100GB_ephemeral_disk
 
