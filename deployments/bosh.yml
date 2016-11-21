@@ -90,11 +90,6 @@ jobs:
         database: bosh
         adapter: postgres
 
-      dns:
-        address: 10.0.1.1
-        db: *db
-        recursor: 8.8.8.8
-
       blobstore:
         address: 10.0.1.3
         port: 25250
