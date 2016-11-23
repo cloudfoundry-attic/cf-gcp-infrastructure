@@ -160,4 +160,5 @@ vm_extensions:
 - name: diego-ssh-proxy-network-properties
   cloud_properties:
     target_pool: cf-ssh
-    tags: cf-ssh
+    tags:
+    - cf-ssh
