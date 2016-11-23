@@ -148,7 +148,10 @@ vm_extensions:
 - name: cf-router-network-properties
   cloud_properties:
     backend_service: httpslb
-    target_pool: cf
+    target_pool: cf-ws
+    tags:
+    - httpslb
+    - cf-ws
 
 - name: cf-tcp-router-network-properties
   cloud_properties:
