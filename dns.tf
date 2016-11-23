@@ -47,3 +47,36 @@ resource "google_dns_record_set" "tcp-dns" {
 
   rrdatas = ["${google_compute_address.cf-tcp.address}"]
 }
+
+resource "google_dns_record_set" "doppler-dns" {
+  name       = "doppler.${google_dns_managed_zone.env_dns_zone.dns_name}"
+  depends_on = ["google_compute_address.cf-ws"]
+  type       = "A"
+  ttl        = 300
+
+  managed_zone = "${google_dns_managed_zone.env_dns_zone.name}"
+
+  rrdatas = ["${google_compute_address.cf-ws.address}"]
+}
+
+resource "google_dns_record_set" "loggregator-dns" {
+  name       = "loggregator.${google_dns_managed_zone.env_dns_zone.dns_name}"
+  depends_on = ["google_compute_address.cf-ws"]
+  type       = "A"
+  ttl        = 300
+
+  managed_zone = "${google_dns_managed_zone.env_dns_zone.name}"
+
+  rrdatas = ["${google_compute_address.cf-ws.address}"]
+}
+
+resource "google_dns_record_set" "wildcard-ws-dns" {
+  name       = "*.ws.${google_dns_managed_zone.env_dns_zone.dns_name}"
+  depends_on = ["google_compute_address.cf-ws"]
+  type       = "A"
+  ttl        = 300
+
+  managed_zone = "${google_dns_managed_zone.env_dns_zone.name}"
+
+  rrdatas = ["${google_compute_address.cf-ws.address}"]
+}

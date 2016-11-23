@@ -110,7 +110,36 @@ resource "google_compute_firewall" "cf-health_check" {
   }
 
   source_ranges = ["130.211.0.0/22"]
-  target_tags   = ["httpslb"]
+  target_tags   = ["httpslb", "cf-ws"]
+}
+
+// TCP LB for websockets
+resource "google_compute_address" "cf-ws" {
+  name = "cf-ws"
+}
+
+resource "google_compute_target_pool" "cf-ws" {
+  name = "cf-ws"
+
+  health_checks = [
+    "${google_compute_http_health_check.cf-public.name}",
+  ]
+}
+
+resource "google_compute_forwarding_rule" "cf-ws-https" {
+  name        = "cf-ws-https"
+  target      = "${google_compute_target_pool.cf-ws.self_link}"
+  port_range  = "443"
+  ip_protocol = "TCP"
+  ip_address  = "${google_compute_address.cf-ws.address}"
+}
+
+resource "google_compute_forwarding_rule" "cf-ws-http" {
+  name        = "cf-ws-http"
+  target      = "${google_compute_target_pool.cf-ws.self_link}"
+  port_range  = "80"
+  ip_protocol = "TCP"
+  ip_address  = "${google_compute_address.cf-ws.address}"
 }
 
 // TCP LB for Diego SSH
@@ -129,10 +158,6 @@ resource "google_compute_firewall" "cf-ssh" {
 
 resource "google_compute_target_pool" "cf-ssh" {
   name = "cf-ssh"
-}
-
-resource "google_compute_target_pool" "cf" {
-  name = "cf"
 }
 
 resource "google_compute_forwarding_rule" "cf-ssh" {
