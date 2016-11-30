@@ -23,10 +23,10 @@ pushd $output_dir
 
 
     cat >openssl-exts.conf <<-EOL
-    extensions = san
-    [san]
-    subjectAltName = IP:${ip},DNS:${hostname}
-    EOL
+extensions = san
+[san]
+subjectAltName = IP:${ip},DNS:${hostname}
+EOL
 
 
     echo "Generating certificate signing request for ${ip}..."
