@@ -63,11 +63,12 @@ service_account_key = <<SERVICE_ACCOUNT_KEY
 ```
 
 ### Var Details
+- project: ID for your GCP project
 - env_name: An arbitrary unique name for namespacing resources
 - region: Region in which to create resources (e.g. us-central1)
 - zones: Zones in which to create resources. Must be within the given region. (e.g. [us-central1-a, us-central1-b, us-central1-c])
 - project: ID for your GCP project
-- dns_suffix: Domain to add environment subdomain to (e.g. foo.example.com)
+- dns_suffix: Base domain name for DNS record creation. This domain will be extended with the name of your GCP project. So, if your GCP project is called "my-cf", then terraform will add DNS records for my-cf.<dns_suffix>.
 - ssl_cert: SSL certificate for HTTP load balancer configuration. Can be either trusted or self-signed.
 - ssl_cert_private_key:  Private key for above SSL certificate.
 - service_account_key: Contents of your service account key file generated using the `gcloud iam service-accounts keys create` command.
