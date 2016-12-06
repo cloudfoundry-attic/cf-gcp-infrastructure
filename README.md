@@ -1,36 +1,43 @@
 # How Does One Use This?
+This document discusses the creation of a GCP environment suitable for deploying Cloud Foundry, starting from the beginning. To use it, you will be creating an environment-specific working directory, copying and creating some necessary files there, running `terraform`, and saving the resulting files. It's worth noting up-front that there are two private, stateful files that _must be saved_ in order to retain the ability to manage the resulting GCP environment with terraform: `terraform.tfvars` and `terraform.state`. You can save these files however you like - something as simple as making the working directory a private git repo and pushing it somewhere safe will work. If you prefer, you can skip the steps under **Create a Working Directory** and use the workspace of this repo, but you'll want to persist your two stateful/private files somewhere else, as they are `.gitignore`d here.
 
 ## Prerequisites
-
-Your system needs the `gcloud` cli, as well as `terraform`:
+You'll need the `gcloud` cli installed. You'll also need `terraform` v0.7.7 or higher. You can install them on a machine managed with homebrew thusly:
 
 ```bash
 brew install Caskroom/cask/google-cloud-sdk
-go get -u github.com/hashicorp/terraform
+brew install terraform
 ```
 
-You will also want to setup a "project-wide" SSH key to allow SSH access to the VMs in your deployment.
-You can follow the directions [here](https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys#sshkeys) to set up a key.
-
-## Notes
-
-This repository requires at least v0.7.7 of terraform
-
-You will also need a key file for your [service account](https://cloud.google.com/iam/docs/service-accounts) to allow terraform to deploy resources. If you don't have one, you can create a service account and a key for it:
+## Setup Account and Keys
+If you don't already have a GCP [service account](https://cloud.google.com/iam/docs/service-accounts), create one:
 
 ```bash
 gcloud iam service-accounts create some-account-name
+```
+
+You'll need a service account key to allow terraform to deploy resources. To create a new one:
+
+```
 gcloud iam service-accounts keys create "terraform.key.json" --iam-account "some-account-name@yourproject.iam.gserviceaccount.com"
 gcloud projects add-iam-policy-binding PROJECT_ID --member 'serviceAccount:some-account-name@PROJECT_ID.iam.gserviceaccount.com' --role 'roles/editor'
 ```
 
-You will need to enable the [Google Cloud Resource Manager API] (https://console.developers.google.com/apis/api/cloudresourcemanager.googleapis.com/) on your GCP account.  The Google Cloud Resource Manager API provides methods for creating, reading, and updating project metadata.
+Optionally, you may setup a "project-wide" SSH key to allow SSH access to the VMs in your deployment. You can follow [these directions](https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys#sshkeys) to set up a key.
 
-You will also need to enable the [Google Cloud DNS API] (https://console.developers.google.com/apis/api/dns/overview) on your GCP account.  The Google Cloud DNS API provides methods for creating, reading, and updating project DNS entries.
+## Enable Google Cloud APIs
+- Enable the [Google Cloud Resource Manager API] (https://console.developers.google.com/apis/api/cloudresourcemanager.googleapis.com/) on your GCP account.  The Google Cloud Resource Manager API provides methods for creating, reading, and updating project metadata.
+- Enable the [Google Cloud DNS API] (https://console.developers.google.com/apis/api/dns/overview) on your GCP account. The Google Cloud DNS API provides methods for creating, reading, and updating project DNS entries.
 
-### Var File
+## Copy Terraform Files
+Put a copy of the terraform templates in your environment-specific working directory:
 
-Copy the stub content below into a file called `terraform.tfvars` and put it in the root of this project. These vars will be used when you run `terraform  apply`. You should fill in the stub values witht he correct content.
+```
+mv *.tf ../env-dir
+```
+
+## Write Var File
+Copy the stub content below into a file called `terraform.tfvars` and put it in the root of your environment-specific working directory. These vars will be used when you run `terraform  apply`. You should fill in the stub values with the correct content. The values you should use are described further below.
 
 ```hcl
 env_name = "some-envrionment-name"
@@ -56,37 +63,30 @@ service_account_key = <<SERVICE_ACCOUNT_KEY
 ```
 
 ### Var Details
+- env_name: An arbitrary unique name for namespacing resources
+- region: Region in which to create resources (e.g. us-central1)
+- zones: Zones in which to create resources. Must be within the given region. (e.g. [us-central1-a, us-central1-b, us-central1-c])
+- project: ID for your GCP project
+- dns_suffix: Domain to add environment subdomain to (e.g. foo.example.com)
+- ssl_cert: SSL certificate for HTTP load balancer configuration. Can be either trusted or self-signed.
+- ssl_cert_private_key:  Private key for above SSL certificate.
+- service_account_key: Contents of your service account key file generated using the `gcloud iam service-accounts keys create` command.
 
-- project: **(required)** ID for your GCP project
-- env_name: **(required)** An arbitrary unique name for namespacing resources
-- region: **(required)** Region in which to create resources (e.g. us-central1)
-- zones: **(required)** Zones in which to create resources. Must be within the given region. (e.g. [us-central1-a, us-central1-b, us-central1-c])
-- service_account_key: **(required)** Contents of your service account key file generated using the `gcloud iam service-accounts keys create` command.
-- dns_suffix: **(required)** Domain to add environment subdomain to (e.g. foo.example.com)
-- ssl_cert: **(required)** SSL certificate for HTTP load balancer configuration. Can be either trusted or self-signed.
-- ssl_cert_private_key:  **(required)** Private key for above SSL certificate.
-- sql_db_tier: *(optional)* DB tier
+All of these vars are **required**. This file _needs to be saved_. It allows terraform to create and manage resources on GCP.
 
-### Cloud SQL Configuration
-
-#### CF
-- cf_sql_db_host: *(optional)* The host the user can connect from. Can be an IP address. Changing this forces a new resource to be created 
-- cf_sql_db_username: *(optional)* Username for database
-- cf_sql_db_password: *(optional)* Password for database
-- cf_sql_instance_count: *(optional)* Number of instances, defaults to 0.
-
-## Running
-
-Note: please make sure you have created the `terraform.tfvars` file above as mentioned.
-
-### Standing up environment
+## Stand Up the Environment
+From your working directory, run:
 
 ```bash
 terraform apply
 ```
+This step will generate a `terraform.state` file, _which needs to be saved_. It allows terraform to track and manage the resources it's created on GCP. After this step, you can deploy something to your new GCP environment! [`cf-deployment`](https://github.com/cloudfoundry/cf-deployment), for example.
 
-### Tearing down environment
+## Tearing down environment
+If you wish to tear down your environment, run:
 
 ```bash
 terraform destroy
 ```
+
+Note that this may not work if there are any VMs deployed; you will need to destroy such VMs by alternative means.
