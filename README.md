@@ -4,17 +4,21 @@ This document discusses the creation of a GCP environment suitable for deploying
 ## Prerequisites
 1. You'll need the `gcloud` cli installed.
 1. You'll also need `terraform` v0.7.7 or higher. You can install them on a machine managed with homebrew thusly:
-```bash
-brew install Caskroom/cask/google-cloud-sdk
-brew install terraform
-```
+
+   ```bash
+   brew install Caskroom/cask/google-cloud-sdk
+   brew install terraform
+   ```
+   
 1. You'll need to make sure your GCP quotas are large enough. You can request a quota increase and ask for the following increases:
   - 100 CPUs
   - 50 In-use IP addresses
 1. Clone the cf-deployment repository
-  ```
-  git clone git@github.com:cloudfoundry/cf-deployment.git
-  ```
+  
+   ```
+   git clone git@github.com:cloudfoundry/cf-deployment.git
+   ```
+   
 1. Acquire the alpha [BOSH CLI](https://github.com/cloudfoundry/bosh-cli).  The old (Ruby-gem) `BOSH CLI` lacks several features required to use `cf-deployment`.
 
 ## Setup Account and Keys
@@ -81,7 +85,7 @@ service_account_key = <<SERVICE_ACCOUNT_KEY
 - ssl_cert_private_key:  Private key for above SSL certificate.
 - service_account_key: Contents of your service account key file generated using the `gcloud iam service-accounts keys create` command.
 
-All of these vars are **required**. This file _needs to be saved_. It allows terraform to create and manage resources on GCP.
+All of these vars are **required**. This file **needs to be saved**. It allows terraform to create and manage resources on GCP.
 
 ## Stand Up the Environment
 From your working directory, run:
@@ -89,61 +93,71 @@ From your working directory, run:
 ```bash
 terraform apply
 ```
-This step will generate a `terraform.state` file, _which needs to be saved_. It allows terraform to track and manage the resources it's created on GCP. This can be placed in a private repository, trusted to a credential management service, or privately and safely stored otherwise. After this step, you can deploy something to your new GCP environment! [`cf-deployment`](https://github.com/cloudfoundry/cf-deployment), for example.
+This step will generate a `terraform.state` file, **which needs to be saved**. It allows terraform to track and manage the resources it's created on GCP. This can be placed in a private repository, trusted to a credential management service, or privately and safely stored otherwise. After this step, you can deploy something to your new GCP environment! [`cf-deployment`](https://github.com/cloudfoundry/cf-deployment), for example.
 
 ## Bosh Setup
 1. Update DNS in Route 53 to contain the Name Servers created by terraform
 1. Generate ssh key for director manifest and add to GCP
-  ```bash
-  ssh-keygen -t rsa -f /PATH/TO/DIRECTOR/SSH_KEY -C vcap  -N ""
-  paste -d: <(echo vcap) /PATH/TO/DIRECTOR/SSH_KEY.pub > /PATH/TO/DIRECTOR/SSH_KEY.gcp_pub
-  gcloud auth activate-service-account --key-file /PATH/TO/GOOGLE_AUTH_JSON
-  gcloud config set project PROJECT_ID
-  gcloud config set compute/region REGION
-  gcloud config set compute/zone ZONE
-  gcloud compute project-info add-metadata --metadata-from-file sshKeys=/PATH/TO/DIRECTOR/SSH_KEY.gcp_pub
-  ```
+
+   ```bash
+   ssh-keygen -t rsa -f /PATH/TO/DIRECTOR/SSH_KEY -C vcap  -N ""
+   paste -d: <(echo vcap) /PATH/TO/DIRECTOR/SSH_KEY.pub > /PATH/TO/DIRECTOR/SSH_KEY.gcp_pub
+   gcloud auth activate-service-account --key-file /PATH/TO/GOOGLE_AUTH_JSON
+   gcloud config set project PROJECT_ID
+   gcloud config set compute/region REGION
+   gcloud config set compute/zone ZONE
+   gcloud compute project-info add-metadata --metadata-from-file sshKeys=/PATH/TO/DIRECTOR/SSH_KEY.gcp_pub
+   ```
+   
 1. Generate director certificate
-  ```bash
-  cf-gcp-infrastructure/deployments/generate-certs.sh director DIRECTOR_IP bosh.ENV_NAME.cf-app.com /TARGET_DIRECTORY/FOR/CERTS
-  ```
+
+   ```bash
+   cf-gcp-infrastructure/deployments/generate-certs.sh director DIRECTOR_IP bosh.ENV_NAME.cf-app.com /TARGET_DIRECTORY/FOR/CERTS
+   ```
+
 1. Generate `bosh-deployment-vars.yml` file containing the following keys:
-  ```bash
-  project: PROJECT_ID
-  zone: ZONE
-  env_name: ENV_NAME
-  director_ip: DIRECTOR_IP
-  nats_password: SOME_PASSWORD
-  postgres_password: SOME_PASSWORD
-  blobstore_director_password: SOME_PASSWORD
-  blobstore_agent_password: SOME_PASSWORD
-  hm_password:  SOME_PASSWORD
-  mbus_password: SOME_PASSWORD
-  director_cert: contents of /TARGET_DIRECTORY/FOR/CERTS/director.crt
-  director_key: contents of /TARGET_DIRECTORY/FOR/CERTS/director.key
-  google_cpi_json_key: stringified GOOGLE_AUTH_JSON content
-  director_username: BOSH_USERNAME
-  director_password: BOSH_PASSWORD
-  director_ssh_key_path: /PATH/TO/DIRECTOR/SSH_KEY
-  ```
-1. Deploy bosh. NB:
-  ```bash
-  bosh interpolate -l bosh-deployment-vars.yml --var-errs cf-gcp-infrastructure/bosh/bosh.yml > /dev/null
-  bosh create-env -l bosh-deployment-vars.yml cf-gcp-infrastructure/bosh/bosh.yml
-  ```
+
+   ```bash
+   project: PROJECT_ID
+   zone: ZONE
+   env_name: ENV_NAME
+   director_ip: DIRECTOR_IP
+   nats_password: SOME_PASSWORD
+   postgres_password: SOME_PASSWORD
+   blobstore_director_password: SOME_PASSWORD
+   blobstore_agent_password: SOME_PASSWORD
+   hm_password:  SOME_PASSWORD
+   mbus_password: SOME_PASSWORD
+   director_cert: contents of /TARGET_DIRECTORY/FOR/CERTS/director.crt
+   director_key: contents of /TARGET_DIRECTORY/FOR/CERTS/director.key
+   google_cpi_json_key: stringified GOOGLE_AUTH_JSON content
+   director_username: BOSH_USERNAME
+   director_password: BOSH_PASSWORD
+   director_ssh_key_path: /PATH/TO/DIRECTOR/SSH_KEY
+   ```
+   
+1. Deploy bosh.
+
+   ```bash
+   bosh interpolate -l bosh-deployment-vars.yml --var-errs cf-gcp-infrastructure/bosh/bosh.yml > /dev/null
+   bosh create-env -l bosh-deployment-vars.yml cf-gcp-infrastructure/bosh/bosh.yml
+   ```
+   
 1. Save the `bosh-state.json` file now located at `cf-gcp-infrastructure/bosh/bosh-state.json`
 1. Upload cloud config
-  ```
-  export BOSH_USER=BOSH_USERNAME
-  export BOSH_PASSWORD=BOSH_PASSWORD
-  export BOSH_ENVIRONMENT=DIRECTOR_IP
-  export BOSH_CA_CERT=/TARGET_DIRECTORY/FOR/CERTS/rootCA.pem
 
-  bosh log-in
-  bosh -n update-cloud-config \
-    -l bosh-deployment-vars.yml \
-    deployments/cloud-config.yml
-  ```
+   ```
+   export BOSH_USER=BOSH_USERNAME
+   export BOSH_PASSWORD=BOSH_PASSWORD
+   export BOSH_ENVIRONMENT=DIRECTOR_IP
+   export BOSH_CA_CERT=/TARGET_DIRECTORY/FOR/CERTS/rootCA.pem
+
+   bosh log-in
+   bosh -n update-cloud-config \
+     -l bosh-deployment-vars.yml \
+     deployments/cloud-config.yml
+   ```
+   
 1. Save the `bosh-deployment-vars.yml` file somewhere safe.  You will need to reuse it if you want to update your bosh deployment without rotating credentials.
 
 ## Tearing down environment
