@@ -138,7 +138,7 @@ vm_extensions:
       size: 1048576
       type: pd-standard
 
-- name: cf-internet-required
+- name: internet-required
   cloud_properties:
     ephemeral_external_ip: true
 - name: cf-internet-not-required
