@@ -141,7 +141,7 @@ vm_extensions:
 - name: internet-required
   cloud_properties:
     ephemeral_external_ip: true
-- name: cf-internet-not-required
+- name: internet-not-required
   cloud_properties:
     ephemeral_external_ip: false
 
