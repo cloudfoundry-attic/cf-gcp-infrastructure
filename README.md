@@ -1,8 +1,5 @@
 # DEPRECATION WARNING: This repo is deprecated in favor of [`bbl`](https://github.com/cloudfoundry/bosh-bootloader).
 
-
-Original README below
-
 ---
 
 # How Does One Use This?
