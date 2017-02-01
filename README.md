@@ -1,3 +1,10 @@
+# DEPRECATION WARNING: This repo is deprecated in favor of [`bbl`](https://github.com/cloudfoundry/bosh-bootloader).
+
+
+Original README below
+
+---
+
 # How Does One Use This?
 This document discusses the creation of a GCP environment suitable for deploying Cloud Foundry, starting from the beginning. To use it, you will be creating an environment-specific working directory, copying and creating some necessary files there, running `terraform`, and saving the resulting files. It's worth noting up-front that there are two private, stateful files that _must be saved_ in order to retain the ability to manage the resulting GCP environment with terraform: `terraform.tfvars` and `terraform.state`. You can save these files however you like - something as simple as making the working directory a private git repository and pushing it somewhere safe will work. If you prefer, you can skip the steps under **Create a Working Directory** and use the workspace of this repository, but you'll want to persist your two stateful/private files somewhere else, as they are `.gitignore`d here.
 
